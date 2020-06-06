@@ -1,0 +1,31 @@
+trigger:
+- master
+
+resources:
+ repositories:
+   - repository: templates
+     type: git
+     name: devops-build-release
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables: 
+          tagSuffix: '_$(Build.BuildNumber)'
+        steps:
+          - task: DownloadSecureFile@1
+            displayName: 'Download secure file'
+            name: settingsxml
+            inputs:
+              secureFile: settings.xml
+          - bash: |
+              mkdir ./.m2
+              cp -f $(settingsxml.secureFilePath) ./.m2/settings.xml
+            displayName: 'Copy settings.xml to .m2 directory'
+          - template: azure-pipelines/build-service.yml@templates
+            parameters:
+              goals: 'package docker:build -DpushImage -Dazure.build.version=$(tagSuffix)'
+              options: '-s ./.m2/settings.xml'

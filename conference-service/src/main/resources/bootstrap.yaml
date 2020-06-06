@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: conference-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: config-server
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  instance:
+    preferIpAddress: true
+    instance-id:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    service-url:
+      default-zone: ${EUREKA_SERVER:http://localhost:8761/eureka}
